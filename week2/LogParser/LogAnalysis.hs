@@ -22,16 +22,17 @@ parse str = parseLines (lines str)
 
 -- inserts a LogMessage to a MessageTree.
 -- Do nothing if a root has unknown message, or a new message is unknown
--- Suppoisng there are no duplications in timestamps
+-- Supposing there are no duplications in timestamps.
 -- If a new stamp is less than a root stamp, go to left
 -- else, go to right
 insert :: LogMessage -> MessageTree -> MessageTree
 insert (Unknown _) tree = tree
 insert _ tree@(Node _ (Unknown _) _) = tree
 insert msg Leaf = Node Leaf msg Leaf
-insert msg@(LogMessage _ newStamp _) (Node left nodeMsg@(LogMessage _ nodeStamp _) right) = case (newStamp < nodeStamp) of
-                                                                                            True -> Node (insert msg left) nodeMsg right
-                                                                                            False -> Node left nodeMsg (insert msg right)
+insert msg@(LogMessage _ newStamp _) 
+       (Node left nodeMsg@(LogMessage _ nodeStamp _) right) = if (newStamp < nodeStamp)
+                                                              then Node (insert msg left) nodeMsg right
+                                                              else Node left nodeMsg (insert msg right)
 
 -- Builds a MessageTree from a list of LogMessage's.
 build :: [LogMessage] -> MessageTree
